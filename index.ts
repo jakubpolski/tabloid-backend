@@ -22,7 +22,7 @@ app.get("/", (req: Request, res: Response) => {
     res.send("API is working");
 })
 
-
+/*
 app.get("/auth/google", passport.authenticate("google", { scope: ["profile", "email"] }));
 app.get(
   "/auth/google/callback",
@@ -32,7 +32,7 @@ app.get(
     res.json({ user: req.user, token });
   }
 );
-
+*/
 app.listen(port, () => {
     console.log(`Server is running on port ${port}`);
 })

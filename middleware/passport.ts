@@ -1,3 +1,4 @@
+/*
 import passport from "passport";
 import { Strategy as GoogleStrategy } from "passport-google-oauth20";
 import User from "../models/user";
@@ -30,3 +31,4 @@ passport.deserializeUser(async (id, done) => {
   const user = await User.findByPk(id);
   done(null, user);
 });
+*/
