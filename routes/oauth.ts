@@ -32,17 +32,26 @@ router.get('/', async (req: Request, res: Response) => {
             return res.status(400).json({ message: 'Incomplete Google profile: missing sub/email/name' });
         }
 
-        const user = await User.findOneAndUpdate(
-            { googleId: payload.sub },
-            {
+        // Check if user already exists
+        let user = await User.findOne({ googleId: payload.sub });
+
+        if (user) {
+            // User exists - update only name, email, picture (NOT role)
+            user.name = payload.name;
+            user.email = payload.email;
+            user.picture = payload.picture || '';
+            await user.save();
+        } else {
+            // New user - create with default role 'user'
+            user = await User.create({
                 googleId: payload.sub,
                 name: payload.name,
                 email: payload.email,
                 picture: payload.picture || '',
                 role: 'user',
-            },
-            { new: true, upsert: true, setDefaultsOnInsert: true }
-        );
+            });
+        }
+
 
         const token = jwt.sign(
             { userId: user.googleId, email: user.email, role: user.role },
@@ -61,6 +70,15 @@ router.get('/', async (req: Request, res: Response) => {
     } catch {
         return res.status(500).json({ message: 'Login failed' });
     }
+});
+
+router.get('/logout', (req: Request, res: Response) => {
+    res.clearCookie('token', {
+        httpOnly: true,
+        secure: process.env.NODE_ENV === 'production',
+        sameSite: 'lax',
+    });
+    res.json({ message: 'Logged out successfully' });
 });
 
 export default router;

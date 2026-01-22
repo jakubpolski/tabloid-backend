@@ -1,6 +1,7 @@
 import express, { Request, Response } from 'express';
 import Post from '../models/post';
 import { authenticate, requireAdmin } from '../middleware/auth';
+import User from '../models/user';
 
 const router = express.Router();
 
@@ -15,17 +16,37 @@ router.get('/posts', authenticate, async (req: Request, res: Response) => {
             .sort({ createdAt: -1 })
             .skip(skip)
             .limit(limit);
+        
+
+        const postsWithAuthors = await Promise.all(
+            posts.map(async (post) => {
+                const author = await User.findOne({ googleId: post.author });
+                const postObj = post.toObject();
+                return {
+                    _id: postObj._id,
+                    title: postObj.title,
+                    content: postObj.content,
+                    createdAt: postObj.createdAt,
+                    updatedAt: postObj.updatedAt,
+                    author: author ? {
+                        googleId: author.googleId,
+                        name: author.name,
+                        picture: author.picture
+                    } : post.author
+                };
+            })
+        );
 
         const total = await Post.countDocuments();
 
         res.json({ 
-            posts, 
+            posts: postsWithAuthors, 
             currentPage: page,
             totalPages: Math.ceil(total / limit),
             totalPosts: total 
         });
     } catch (error) {
-        res.status(500).json({ message: 'Server error' });
+        res.status(500).json({ message:`Server error: ${error}` });
     }
 });
 
@@ -37,13 +58,30 @@ router.get('/post', authenticate, async (req: Request, res: Response) => {
             return res.status(400).json({ message: 'Post ID is required' });
         }
 
-        const post = await Post.findById(postId).populate('author', 'name picture');
+        
+        const post = await Post.findById(postId);
         
         if (!post) {
             return res.status(404).json({ message: 'Post not found' });
         }
 
-        res.json({ post });
+        // Manually populate author data using googleId
+        const author = await User.findOne({ googleId: post.author });
+        const postObj = post.toObject();
+        const postWithAuthor = {
+            _id: postObj._id,
+            title: postObj.title,
+            content: postObj.content,
+            createdAt: postObj.createdAt,
+            updatedAt: postObj.updatedAt,
+            author: author ? {
+                googleId: author.googleId,
+                name: author.name,
+                picture: author.picture
+            } : post.author
+        };
+
+        res.json({ post: postWithAuthor });
     } catch (error) {
         res.status(500).json({ message: 'Server error' });
     }

@@ -19,7 +19,6 @@ const postSchema: Schema<IPost> = new Schema<IPost>({
     },
     author: {
         type: String,
-        ref: 'users',
         required: true,
     },
 }, {

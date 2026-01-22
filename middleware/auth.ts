@@ -32,6 +32,7 @@ export const authenticate = (req: Request, res: Response, next: NextFunction) =>
 };
 
 export const requireAdmin = (req: Request, res: Response, next: NextFunction) => {
+    console.log('User role:', req.user?.role);
     if (req.user?.role !== 'admin') {
         return res.status(403).json({ message: 'Admin access required' });
     }

@@ -19,7 +19,15 @@ const googleRedirectUrl = process.env.GOOGLE_REDIRECT_URL || "http://localhost:3
 
 connectDB();
 
-app.use(cors());
+
+const corsOptions = {
+  origin: frontendUrl,                 // nie używaj '*' jeśli credentials: true
+  credentials: true,                   // Access-Control-Allow-Credentials: true
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization', 'Accept'],
+};
+
+app.use(cors(corsOptions));
 app.use(cookieParser());
 app.use(express.json())
 
