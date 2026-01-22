@@ -27,8 +27,8 @@ const userSchema: Schema<IUser> = new Schema<IUser>({
     },
     picture: {
         type: String,
-        required: true,
-        description: 'must be a string and is required',
+        required: false,
+        description: 'must be a string',
     },
     role: {
         type: String,

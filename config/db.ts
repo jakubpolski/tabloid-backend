@@ -10,7 +10,7 @@ const connectDB = async(): Promise<void> => {
         }
 
         await mongoose.connect(
-            `mongodb+srv://${dbUser}:${dbPassword}@tabloid.zb32hd3.mongodb.net/?appName=tabloid`
+            `mongodb+srv://${dbUser}:${dbPassword}@tabloid.zb32hd3.mongodb.net/tabloid?appName=tabloid`
         )
         console.log("Successfully connected to MongoDB");
     } catch (err) {

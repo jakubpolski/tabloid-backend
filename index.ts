@@ -1,38 +1,61 @@
 import express, {Request, Response} from 'express'
-import passport from "passport";
-import jwt from 'jsonwebtoken'
+import cookieParser from 'cookie-parser'
+import { OAuth2Client } from 'google-auth-library';
 
 import 'dotenv/config'
 
 import connectDB from './config/db';
 import cors from 'cors'
 
-const app = express();
-const port = process.env.PORT || 9000;
+import oAuthRouter from './routes/oauth';
+import userRouter from './routes/user';
+import postRouter from './routes/post';
 
-import userRoutes from "./routes/userRoutes"
+const app = express();
+const port = process.env.PORT || 3000;
+const frontendUrl = process.env.FRONTEND_REDIRECT_URL || "http://localhost:5173";
+const googleRedirectUrl = process.env.GOOGLE_REDIRECT_URL || "http://localhost:3000/oauth";
+
 
 connectDB();
 
 app.use(cors());
+app.use(cookieParser());
 app.use(express.json())
-app.use('/user', userRoutes)
 
-app.get("/", (req: Request, res: Response) => {
-    res.send("API is working");
+const buildAuthUrl = () => {
+    const oAuth2Client = new OAuth2Client(
+        process.env.GOOGLE_CLIENT_ID,
+        process.env.GOOGLE_CLIENT_SECRET,
+        googleRedirectUrl
+    );
+    return oAuth2Client.generateAuthUrl({
+        access_type: 'offline',
+        scope: 'openid https://www.googleapis.com/auth/userinfo.email https://www.googleapis.com/auth/userinfo.profile',
+        prompt: 'consent',
+    });
+};
+
+app.get("/login", (_req: Request, res: Response) => {
+    res.header("Access-Control-Allow-Origin", frontendUrl);
+    res.header("Referer-Policy", "no-referrer-when-downgrade");
+    res.json({ url: buildAuthUrl() });
+});
+
+app.post("/", (req: Request, res: Response) => {
+    res.header("Access-Control-Allow-Origin", frontendUrl);
+    res.header("Referer-Policy", "no-referrer-when-downgrade");
+    res.json({ url: buildAuthUrl() });
 })
 
-/*
-app.get("/auth/google", passport.authenticate("google", { scope: ["profile", "email"] }));
-app.get(
-  "/auth/google/callback",
-  passport.authenticate("google", { session: false }),
-  (req, res) => {
-    const token = jwt.sign({ id: req.user.id }, process.env.JWT_SECRET);
-    res.json({ user: req.user, token });
-  }
-);
-*/
+app.use("/oauth", oAuthRouter);
+app.use("/user", userRouter);
+app.use("/", postRouter);
+
+app.get("/", (req: Request, res: Response) => {
+    res.send("API is working.");
+})
+
 app.listen(port, () => {
     console.log(`Server is running on port ${port}`);
 })
