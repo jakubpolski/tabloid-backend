@@ -35,6 +35,7 @@ router.get('/', async (req: Request, res: Response) => {
         const user = await User.findOneAndUpdate(
             { googleId: payload.sub },
             {
+                googleId: payload.sub,
                 name: payload.name,
                 email: payload.email,
                 picture: payload.picture || '',
@@ -44,7 +45,7 @@ router.get('/', async (req: Request, res: Response) => {
         );
 
         const token = jwt.sign(
-            { userId: user._id.toString(), email: user.email, role: user.role },
+            { userId: user.googleId, email: user.email, role: user.role },
             process.env.JWT_SECRET!,
             { expiresIn: '7d' }
         );

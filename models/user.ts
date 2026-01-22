@@ -1,26 +1,26 @@
 import mongoose, { Schema, Document } from 'mongoose';
 
 interface IUser extends Document {
+    googleId: string;
     name: string;
     email: string;
-    googleId: string;
     picture: string;
     role: 'user' | 'admin';
 }
 
-
 const userSchema: Schema<IUser> = new Schema<IUser>({
+    googleId: {
+        type: String,
+        required: true,
+        unique: true,
+        description: 'Google ID used as reference key',
+    },
     name: {
         type: String,
         required: true,
         description: 'must be a string and is required',
     },
     email: {
-        type: String,
-        required: true,
-        description: 'must be a string and is required',
-    },
-    googleId: {
         type: String,
         required: true,
         description: 'must be a string and is required',
