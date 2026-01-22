@@ -95,7 +95,8 @@ jobs:
             --settings DB_USER=${{ secrets.DB_USER }} \
             DB_PASSWORD=${{ secrets.DB_PASSWORD }} \
             JWT_SECRET=${{ secrets.JWT_SECRET }} \
-            ADMIN_COOKIE_SECRET=${{ secrets.ADMIN_COOKIE_SECRET }}
+            GOOGLE_CLIENT_ID=${{ secrets.GOOGLE_CLIENT_ID }} \
+            GOOGLE_CLIENT_SECRET=${{ secrets.GOOGLE_CLIENT_SECRET }}
       - name: Deploy to Azure Container Instances
         uses: azure/webapps-deploy@v2
         with:
