@@ -59,8 +59,8 @@ router.get('/', async (req: Request, res: Response) => {
         );
 
         return res.redirect(`${frontendRedirect}#token=${token}`);
-    } catch {
-        return res.status(500).json({ message: 'Login failed' });
+    } catch (err) {
+        return res.status(500).json({ message: `Login failed ${err}` });
     }
 });
 

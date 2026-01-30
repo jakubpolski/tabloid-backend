@@ -1,4 +1,4 @@
-ARG NODE_VERSION=23.10.0
+ARG NODE_VERSION=24.13.0
 
 # ----------- Building stage
 FROM node:${NODE_VERSION}-alpine as builder

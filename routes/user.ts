@@ -44,9 +44,7 @@ router.get('/', authenticate, async (req: Request, res: Response) => {
         const posts = await Post.find({ author: userId }).select('title createdAt');
 
         return res.json({ 
-            name: user.name, 
-            picture: user.picture,
-            role: user.role, 
+            user,
             posts
         });
     } catch (error) {

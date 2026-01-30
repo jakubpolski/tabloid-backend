@@ -28,11 +28,7 @@ router.get('/posts', authenticate, async (req: Request, res: Response) => {
                     content: postObj.content,
                     createdAt: postObj.createdAt,
                     updatedAt: postObj.updatedAt,
-                    author: {
-                        googleId: author?.googleId,
-                        name: author?.name,
-                        picture: author?.picture
-                    }
+                    author
                 };
             })
         );
@@ -73,11 +69,7 @@ router.get('/post', authenticate, async (req: Request, res: Response) => {
             content: postObj.content,
             createdAt: postObj.createdAt,
             updatedAt: postObj.updatedAt,
-            author: {
-                googleId: author?.googleId,
-                name: author?.name,
-                picture: author?.picture
-            }
+            author
         };
 
         res.json({ post: postWithAuthor });
