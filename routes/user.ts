@@ -40,16 +40,19 @@ router.get('/', authenticate, async (req: Request, res: Response) => {
         if (!user) {
             return res.status(404).json({ message: 'User not found' });
         }
-
+/*
         if (req.user?.role === 'admin') {
-            const posts = await Post.find({ author: userId }).select('title createdAt');
+            
             return res.json({ user, posts, postsCount: posts.length });
         }
+            */
+        const posts = await Post.find({ author: userId }).select('title createdAt');
 
         return res.json({ 
             name: user.name, 
             picture: user.picture,
-            role: user.role 
+            role: user.role, 
+            posts
         });
     } catch (error) {
         res.status(500).json({ message: 'Server error' });

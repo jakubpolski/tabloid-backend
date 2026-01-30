@@ -37,6 +37,8 @@ const userSchema: Schema<IUser> = new Schema<IUser>({
         default: 'user',
         description: 'must be a string of \'user\' or \'admin\' and is required',
     },
+}, {
+    autoCreate: true,
 });
 
 const User = mongoose.model<IUser>('users', userSchema);
