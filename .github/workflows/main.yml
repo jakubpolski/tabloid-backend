@@ -81,8 +81,7 @@ jobs:
             az webapp create --resource-group ZastosowaniaInformatyki-RG \
               --plan ZastosowaniaInformatyki-RP \
               --name $APP_NAME \
-              --container-registry-url index.docker.io \
-              -c jakubpolski/tabloid:prod-backend \
+              --container-image-name index.docker.io/jakubpolski/tabloid:prod-backend \
               -s "${{ secrets.DOCKER_USERNAME }}" \
               -w "${{ secrets.DOCKER_PASSWORD }}"
           else
