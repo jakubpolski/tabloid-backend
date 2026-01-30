@@ -83,8 +83,8 @@ jobs:
               --name $APP_NAME \
               --container-registry-url index.docker.io \
               -c jakubpolski/tabloid:prod-backend \
-              -s ${{ secrets.DOCKER_USERNAME }} \
-              -w ${{ secrets.DOCKER_PASSWORD }}
+              -s "${{ secrets.DOCKER_USERNAME }}" \
+              -w "${{ secrets.DOCKER_PASSWORD }}"
           else
             echo "App already exists, skipping creation."
           fi
@@ -92,12 +92,10 @@ jobs:
           az webapp config appsettings set \
             --name $APP_NAME \
             --resource-group ZastosowaniaInformatyki-RG \
-            --settings DB_USER=${{ secrets.DB_USER }} \
-            DB_PASSWORD=${{ secrets.DB_PASSWORD }} \
-            JWT_SECRET=${{ secrets.JWT_SECRET }} \
-            GOOGLE_CLIENT_ID=${{ secrets.GOOGLE_CLIENT_ID }} \
-            GOOGLE_CLIENT_SECRET=${{ secrets.GOOGLE_CLIENT_SECRET }} \
-            DB_CONNECTION=${{ secrets.DB_CONNECTION }} \
+            --settings JWT_SECRET="${{ secrets.JWT_SECRET }}" \
+            GOOGLE_CLIENT_ID="${{ secrets.GOOGLE_CLIENT_ID }}" \
+            GOOGLE_CLIENT_SECRET="${{ secrets.GOOGLE_CLIENT_SECRET }}" \
+            DB_CONNECTION="${{ secrets.DB_CONNECTION }}" \
             FRONTEND_REDIRECT_URL="https://tabloid.azurewebsites.net" \
             GOOGLE_REDIRECT_URL="https://api-tabloid.azurewebsites.net"
       - name: Deploy to Azure Container Instances
