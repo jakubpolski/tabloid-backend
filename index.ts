@@ -21,7 +21,7 @@ connectDB();
 
 
 const corsOptions = {
-  origin: frontendUrl,                 // nie używaj '*' jeśli credentials: true
+  origin: frontendUrl,
   credentials: true,                   // Access-Control-Allow-Credentials: true
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization', 'Accept'],

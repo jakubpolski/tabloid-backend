@@ -59,26 +59,11 @@ router.get('/', async (req: Request, res: Response) => {
             { expiresIn: '7d' }
         );
 
-        res.cookie('token', token, {
-            httpOnly: true,
-            secure: true,
-            sameSite: 'none',
-            maxAge: 7 * 24 * 60 * 60 * 1000,
-        });
-
-        return res.redirect(frontendRedirect);
+        return res.redirect(`${frontendRedirect}#token=${token}`);
     } catch {
         return res.status(500).json({ message: 'Login failed' });
     }
 });
 
-router.get('/logout', (req: Request, res: Response) => {
-    res.clearCookie('token', {
-        httpOnly: true,
-        secure: true,
-        sameSite: 'none',
-    });
-    res.json({ message: 'Logged out successfully' });
-});
 
 export default router;
