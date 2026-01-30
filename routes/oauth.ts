@@ -36,7 +36,7 @@ router.get('/', async (req: Request, res: Response) => {
         let user = await User.findOne({ googleId: payload.sub });
 
         if (user) {
-            // User exists - update only name, email, picture (NOT role)
+            // User exists - update only name, email, picture
             user.name = payload.name;
             user.email = payload.email;
             user.picture = payload.picture || '';
@@ -51,7 +51,6 @@ router.get('/', async (req: Request, res: Response) => {
                 role: 'user',
             });
         }
-
 
         const token = jwt.sign(
             { userId: user.googleId, email: user.email, role: user.role },

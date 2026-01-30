@@ -1,5 +1,4 @@
 import express, {Request, Response} from 'express'
-import cookieParser from 'cookie-parser'
 import { OAuth2Client } from 'google-auth-library';
 
 import 'dotenv/config'
@@ -28,7 +27,6 @@ const corsOptions = {
 };
 
 app.use(cors(corsOptions));
-app.use(cookieParser());
 app.use(express.json())
 
 const buildAuthUrl = () => {

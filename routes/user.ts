@@ -23,7 +23,7 @@ router.get('/me', authenticate, async (req: Request, res: Response) => {
             role: user.role 
         });
     } catch (error) {
-        res.status(500).json({ message: 'Server error' });
+        res.status(500).json({ message:`Server error: ${error}` });
     }
 });
 
@@ -40,12 +40,7 @@ router.get('/', authenticate, async (req: Request, res: Response) => {
         if (!user) {
             return res.status(404).json({ message: 'User not found' });
         }
-/*
-        if (req.user?.role === 'admin') {
-            
-            return res.json({ user, posts, postsCount: posts.length });
-        }
-            */
+
         const posts = await Post.find({ author: userId }).select('title createdAt');
 
         return res.json({ 
@@ -55,7 +50,7 @@ router.get('/', authenticate, async (req: Request, res: Response) => {
             posts
         });
     } catch (error) {
-        res.status(500).json({ message: 'Server error' });
+        res.status(500).json({ message:`Server error: ${error}` });
     }
 });
 
@@ -76,7 +71,7 @@ router.delete('/', authenticate, requireAdmin, async (req: Request, res: Respons
 
         res.json({ message: 'User and all posts deleted successfully' });
     } catch (error) {
-        res.status(500).json({ message: 'Server error' });
+        res.status(500).json({ message:`Server error: ${error}` });
     }
 });
 

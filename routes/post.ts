@@ -28,11 +28,11 @@ router.get('/posts', authenticate, async (req: Request, res: Response) => {
                     content: postObj.content,
                     createdAt: postObj.createdAt,
                     updatedAt: postObj.updatedAt,
-                    author: author ? {
-                        googleId: author.googleId,
-                        name: author.name,
-                        picture: author.picture
-                    } : post.author
+                    author: {
+                        googleId: author?.googleId,
+                        name: author?.name,
+                        picture: author?.picture
+                    }
                 };
             })
         );
@@ -58,7 +58,6 @@ router.get('/post', authenticate, async (req: Request, res: Response) => {
             return res.status(400).json({ message: 'Post ID is required' });
         }
 
-        
         const post = await Post.findById(postId);
         
         if (!post) {
@@ -74,16 +73,16 @@ router.get('/post', authenticate, async (req: Request, res: Response) => {
             content: postObj.content,
             createdAt: postObj.createdAt,
             updatedAt: postObj.updatedAt,
-            author: author ? {
-                googleId: author.googleId,
-                name: author.name,
-                picture: author.picture
-            } : post.author
+            author: {
+                googleId: author?.googleId,
+                name: author?.name,
+                picture: author?.picture
+            }
         };
 
         res.json({ post: postWithAuthor });
     } catch (error) {
-        res.status(500).json({ message: 'Server error' });
+        res.status(500).json({ message:`Server error: ${error}` });
     }
 });
 
@@ -104,7 +103,7 @@ router.post('/post', authenticate, async (req: Request, res: Response) => {
         await post.save();
         res.status(201).json({ message: 'Post created successfully', post });
     } catch (error) {
-        res.status(500).json({ message: `Server error: ${error}` });
+        res.status(500).json({ message:`Server error: ${error}` });
     }
 });
 
@@ -133,7 +132,7 @@ router.put('/post', authenticate, async (req: Request, res: Response) => {
         await post.save();
         res.json({ message: 'Post updated successfully', post });
     } catch (error) {
-        res.status(500).json({ message: 'Server error' });
+        res.status(500).json({ message:`Server error: ${error}` });
     }
 });
 
@@ -158,7 +157,7 @@ router.delete('/post', authenticate, async (req: Request, res: Response) => {
         await Post.findByIdAndDelete(postId);
         res.json({ message: 'Post deleted successfully' });
     } catch (error) {
-        res.status(500).json({ message: 'Server error' });
+        res.status(500).json({ message:`Server error: ${error}` });
     }
 });
 
