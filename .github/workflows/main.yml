@@ -97,7 +97,9 @@ jobs:
             JWT_SECRET=${{ secrets.JWT_SECRET }} \
             GOOGLE_CLIENT_ID=${{ secrets.GOOGLE_CLIENT_ID }} \
             GOOGLE_CLIENT_SECRET=${{ secrets.GOOGLE_CLIENT_SECRET }} \
-            DB_CONNECTION=${{ secrets.DB_CONNECTION}}
+            DB_CONNECTION=${{ secrets.DB_CONNECTION }} \
+            FRONTEND_REDIRECT_URL="https://tabloid.azurewebsites.net" \
+            GOOGLE_REDIRECT_URL="https://api-tabloid.azurewebsites.net"
       - name: Deploy to Azure Container Instances
         uses: azure/webapps-deploy@v2
         with:
