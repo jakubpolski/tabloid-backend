@@ -5,6 +5,59 @@ import User from '../models/user';
 
 const router = express.Router();
 
+/**
+ * @openapi
+ * /posts:
+ *   get:
+ *     summary: Get paginated posts
+ *     description: Returns a paginated list of posts with author information. Requires JWT token in Authorization header.
+ *     tags:
+ *       - Posts
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: query
+ *         name: page
+ *         schema:
+ *           type: integer
+ *           default: 1
+ *           minimum: 1
+ *         description: Page number for pagination
+ *         example: 1
+ *     responses:
+ *       200:
+ *         description: Posts retrieved successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 posts:
+ *                   type: array
+ *                   items:
+ *                     $ref: '#/components/schemas/Post'
+ *                 currentPage:
+ *                   type: integer
+ *                   example: 1
+ *                 totalPages:
+ *                   type: integer
+ *                   example: 5
+ *                 totalPosts:
+ *                   type: integer
+ *                   example: 42
+ *       401:
+ *         description: Authentication required or invalid token
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Error'
+ *       500:
+ *         description: Server error
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Error'
+ */
 router.get('/posts', authenticate, async (req: Request, res: Response) => {
     try {
         const page = parseInt(req.query.page as string) || 1;
@@ -17,7 +70,6 @@ router.get('/posts', authenticate, async (req: Request, res: Response) => {
             .skip(skip)
             .limit(limit);
         
-
         const postsWithAuthors = await Promise.all(
             posts.map(async (post) => {
                 const author = await User.findOne({ googleId: post.author });
@@ -46,6 +98,60 @@ router.get('/posts', authenticate, async (req: Request, res: Response) => {
     }
 });
 
+
+/**
+ * @openapi
+ * /post:
+ *   get:
+ *     summary: Get a single post by ID
+ *     description: Returns detailed information about a specific post. Requires JWT token in Authorization header.
+ *     tags:
+ *       - Posts
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: query
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: Post ID (MongoDB ObjectId)
+ *         example: '507f1f77bcf86cd799439011'
+ *     responses:
+ *       200:
+ *         description: Post retrieved successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 post:
+ *                   $ref: '#/components/schemas/Post'
+ *       400:
+ *         description: Post ID is required
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Error'
+ *       401:
+ *         description: Authentication required or invalid token
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Error'
+ *       404:
+ *         description: Post not found
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Error'
+ *       500:
+ *         description: Server error
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Error'
+ */
 router.get('/post', authenticate, async (req: Request, res: Response) => {
     try {
         const postId = req.query.id as string;
@@ -78,6 +184,66 @@ router.get('/post', authenticate, async (req: Request, res: Response) => {
     }
 });
 
+/**
+ * @openapi
+ * /post:
+ *   post:
+ *     summary: Create a new post
+ *     description: Creates a new post with title and content. Requires JWT token in Authorization header. The author is automatically set from the authenticated user.
+ *     tags:
+ *       - Posts
+ *     security:
+ *       - bearerAuth: []
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - title
+ *               - content
+ *             properties:
+ *               title:
+ *                 type: string
+ *                 description: Post title
+ *                 example: My New Post
+ *               content:
+ *                 type: string
+ *                 description: Post content
+ *                 example: This is the content of my new post...
+ *     responses:
+ *       201:
+ *         description: Post created successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: Post created successfully
+ *                 post:
+ *                   $ref: '#/components/schemas/Post'
+ *       400:
+ *         description: Title and content are required
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Error'
+ *       401:
+ *         description: Authentication required or invalid token
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Error'
+ *       500:
+ *         description: Server error
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Error'
+ */
 router.post('/post', authenticate, async (req: Request, res: Response) => {
     try {
         const { title, content } = req.body;
@@ -99,6 +265,83 @@ router.post('/post', authenticate, async (req: Request, res: Response) => {
     }
 });
 
+/**
+ * @openapi
+ * /post:
+ *   put:
+ *     summary: Update a post
+ *     description: Updates an existing post's title and/or content. Only the post author or admin can update. Requires JWT token in Authorization header.
+ *     tags:
+ *       - Posts
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: query
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: Post ID to update (MongoDB ObjectId)
+ *         example: '507f1f77bcf86cd799439011'
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               title:
+ *                 type: string
+ *                 description: New post title (optional)
+ *                 example: Updated Post Title
+ *               content:
+ *                 type: string
+ *                 description: New post content (optional)
+ *                 example: This is the updated content...
+ *     responses:
+ *       200:
+ *         description: Post updated successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: Post updated successfully
+ *                 post:
+ *                   $ref: '#/components/schemas/Post'
+ *       400:
+ *         description: Post ID is required
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Error'
+ *       401:
+ *         description: Authentication required or invalid token
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Error'
+ *       403:
+ *         description: Not authorized to edit this post
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Error'
+ *       404:
+ *         description: Post not found
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Error'
+ *       500:
+ *         description: Server error
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Error'
+ */
 router.put('/post', authenticate, async (req: Request, res: Response) => {
     try {
         const postId = req.query.id as string;
@@ -128,6 +371,66 @@ router.put('/post', authenticate, async (req: Request, res: Response) => {
     }
 });
 
+/**
+ * @openapi
+ * /post:
+ *   delete:
+ *     summary: Delete a post
+ *     description: Deletes a post. Only the post author or admin can delete. Requires JWT token in Authorization header.
+ *     tags:
+ *       - Posts
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: query
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: Post ID to delete (MongoDB ObjectId)
+ *         example: '507f1f77bcf86cd799439011'
+ *     responses:
+ *       200:
+ *         description: Post deleted successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: Post deleted successfully
+ *       400:
+ *         description: Post ID is required
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Error'
+ *       401:
+ *         description: Authentication required or invalid token
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Error'
+ *       403:
+ *         description: Not authorized to delete this post
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Error'
+ *       404:
+ *         description: Post not found
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Error'
+ *       500:
+ *         description: Server error
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Error'
+ */
 router.delete('/post', authenticate, async (req: Request, res: Response) => {
     try {
         const postId = req.query.id as string;

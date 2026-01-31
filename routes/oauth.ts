@@ -8,6 +8,58 @@ const router = express.Router();
 const redirectUrl = process.env.GOOGLE_REDIRECT_URL || 'http://localhost:3000/oauth';
 const frontendRedirect = process.env.FRONTEND_REDIRECT_URL || 'http://localhost:5173';
 
+/**
+ * @openapi
+ * /oauth:
+ *   get:
+ *     summary: Google OAuth callback
+ *     description: |
+ *       Handles Google OAuth callback, creates/updates user, and redirects to frontend with JWT token in URL hash.
+ *       The frontend should extract the token from the URL hash and store it in sessionStorage.
+ *       
+ *       **Authentication Flow:**
+ *       1. User clicks login and is redirected to Google
+ *       2. After Google authentication, user is redirected to this endpoint with a code
+ *       3. This endpoint exchanges the code for user info and creates a JWT
+ *       4. User is redirected to frontend with token: `{frontendUrl}#token={jwt}`
+ *       5. Frontend extracts token and stores in sessionStorage
+ *       6. Frontend sends token in Authorization header: `Bearer {token}`
+ *     tags:
+ *       - Authentication
+ *     security: []
+ *     parameters:
+ *       - in: query
+ *         name: code
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: Google OAuth authorization code
+ *     responses:
+ *       302:
+ *         description: Redirects to frontend with JWT token in URL hash (#token=...)
+ *       400:
+ *         description: Missing code or invalid Google profile
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Error'
+ *             examples:
+ *               missingCode:
+ *                 value:
+ *                   message: Missing code
+ *               noToken:
+ *                 value:
+ *                   message: No id_token returned
+ *               incompleteProfile:
+ *                 value:
+ *                   message: Incomplete Google profile missing sub/email/name
+ *       500:
+ *         description: Login failed
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Error'
+ */
 router.get('/', async (req: Request, res: Response) => {
     try {
         const code = req.query.code as string;
