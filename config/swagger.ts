@@ -1,5 +1,7 @@
 import swaggerJsdoc from 'swagger-jsdoc';
 
+const isDevelopment = process.env.NODE_ENV !== 'production';
+
 const options: swaggerJsdoc.Options = {
   definition: {
     openapi: '3.0.0',
@@ -11,6 +13,7 @@ const options: swaggerJsdoc.Options = {
         name: 'API Support',
       },
     },
+
     components: {
       securitySchemes: {
         bearerAuth: {
@@ -128,7 +131,10 @@ const options: swaggerJsdoc.Options = {
       },
     ],
   },
-  apis: ['./routes/*.ts', './index.ts'],
+  apis: [
+    './routes/*.ts', './index.ts',
+    './routes/*.js', './index.js',
+  ],
 };
 
 const swaggerSpec = swaggerJsdoc(options);
